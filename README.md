@@ -7,4 +7,4 @@
 ### 5. __Dataset link:__ https://catalog.data.gov/dataset/alternative-fueling-station-locations-422f2
 
 
-#### The original csv file where we got our data is "alt_fuel_stations". It was cleaned into "filtered_data" using a Jupyter notebook called "cleaning data".
+### The original csv file where we got our data is "alt_fuel_stations". It was cleaned into "filtered_data" using a Jupyter notebook called "cleaning data".
