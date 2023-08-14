@@ -5,3 +5,6 @@
 ### 3. __Main idea:__ Measure and analyze different alternative fuel stations across IL.
 ### 4. __Dashboard:__ map: IL map pinpointing all different fuel stations; bar chart: different types of fuel types per state/city; pie chart: public vs private stations; user-driven interaction (e.g., menus, dropdowns: cities, textboxes: lon&lat, markers showing address)
 ### 5. __Dataset link:__ https://catalog.data.gov/dataset/alternative-fueling-station-locations-422f2
+
+
+### The original csv file where we got our data is "alt_fuel_stations". It was cleaned into "filtered_data" using a Jupyter notebook called "cleaning data".
