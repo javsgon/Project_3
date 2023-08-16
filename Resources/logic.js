@@ -24,15 +24,12 @@ d3.csv("Resources/filtered_data.csv").then(function(data) {
         }
     });
 
-    console.log("cityFuelDistribution:", cityFuelDistribution);
-
     // Convert city-fuel type hierarchy to sunburst chart data
     var sunburstChartData = {
         name: "Cities",
         children: buildSunburstData(cityFuelDistribution)
     };
-
-    // Create a function to build sunburst chart data recursively
+    
     function buildSunburstData(hierarchy) {
         return Object.keys(hierarchy).map(function(city) {
             return {
@@ -47,8 +44,6 @@ d3.csv("Resources/filtered_data.csv").then(function(data) {
         });
     }
 
-    console.log("sunburstChartData:", sunburstChartData);
-
     // Create a sunburst chart for city-fuel type distribution
     var sunburstData = [{
         type: "sunburst",
@@ -59,8 +54,8 @@ d3.csv("Resources/filtered_data.csv").then(function(data) {
                 return acc + fuelType.size;
             }, 0);
         }),
-        hoverinfo: "label+text+value",
-        textinfo: "percent root+label",
+        hoverinfo: "label+percent root",
+        textinfo: "label+value+entry", // Show city name, number of fuel types, and fuel types on click
         textfont: { size: 13 },
     }];
 
@@ -69,86 +64,49 @@ d3.csv("Resources/filtered_data.csv").then(function(data) {
         margin: { l: 0, r: 0, b: 0, t: 30 },
     };
 
-    console.log("sunburstData:", sunburstData);
-
     // Render the sunburst chart
     Plotly.newPlot("sunburst-chart", sunburstData, sunburstLayout);
     console.log("Sunburst chart rendered");
 
-    // Extract unique fuel types from the data
-    var uniqueFuelTypes = Array.from(new Set(data.map(entry => entry["Fuel Type Code"])));
+    // Convert city-fuel type distribution to pie chart data
+    var pieChartData = buildPieChartData(cityFuelDistribution);
 
-    // Add "All" option to both dropdowns
-    uniqueFuelTypes.unshift("All");
+    function buildPieChartData(hierarchy) {
+        var fuelTypeCounts = {};
 
-    // Populate dropdowns with fuel types
-    var donutFuelTypeSelect = document.getElementById("donut-fuel-type-select");
-    var sunburstFuelTypeSelect = document.getElementById("sunburst-fuel-type-select");
+        Object.keys(hierarchy).forEach(function(city) {
+            Object.keys(hierarchy[city]).forEach(function(fuelType) {
+                if (!fuelTypeCounts[fuelType]) {
+                    fuelTypeCounts[fuelType] = hierarchy[city][fuelType];
+                } else {
+                    fuelTypeCounts[fuelType] += hierarchy[city][fuelType];
+                }
+            });
+        });
 
-    uniqueFuelTypes.forEach(function(fuelType) {
-        var option = document.createElement("option");
-        option.value = fuelType;
-        option.text = fuelType;
-        donutFuelTypeSelect.appendChild(option.cloneNode(true));
-        sunburstFuelTypeSelect.appendChild(option.cloneNode(true));
-    });
-
-    // Add event listener for donut chart fuel type dropdown
-    document.getElementById("donut-fuel-type-select").addEventListener("change", function(event) {
-        var selectedFuelType = event.target.value;
-        console.log("Selected fuel type for donut chart:", selectedFuelType);
-        // Update the donut chart based on the selected fuel type
-        updateDonutChart(selectedFuelType);
-    });
-
-    // Add event listener for sunburst chart fuel type dropdown
-    document.getElementById("sunburst-fuel-type-select").addEventListener("change", function(event) {
-        var selectedFuelType = event.target.value;
-        console.log("Selected fuel type for sunburst chart:", selectedFuelType);
-        // Update the sunburst chart based on the selected fuel type
-        updateSunburstChart(selectedFuelType);
-    });
-
-    // Function to update donut chart based on selected fuel type
-    function updateDonutChart(selectedFuelType) {
-        console.log("Updating donut chart with selected fuel type:", selectedFuelType);
-        // Update the donut chart based on the selected fuel type
-        // Example: Call a function to updateDonutChart(selectedFuelType);
+        return Object.keys(fuelTypeCounts).map(function(fuelType) {
+            return {
+                label: fuelType,
+                value: fuelTypeCounts[fuelType]
+            };
+        });
     }
 
-    // Function to update sunburst chart based on selected fuel type
-    function updateSunburstChart(selectedFuelType) {
-        console.log("Updating sunburst chart with selected fuel type:", selectedFuelType);
-        // Filter the sunburstChartData based on selected fuel type
-        var filteredChartData = {
-            name: "Cities",
-            children: sunburstChartData.children.map(function(city) {
-                return {
-                    name: city.name,
-                    children: city.children.filter(function(fuel) {
-                        return selectedFuelType === "All" || fuel.name === selectedFuelType;
-                    })
-                };
-            })
-        };
+    // Create a pie chart for fuel type distribution
+    var pieData = [{
+        type: "pie",
+        labels: pieChartData.map(function(item) { return item.label; }),
+        values: pieChartData.map(function(item) { return item.value; }),
+        hoverinfo: "label+value",
+        textinfo: "percent",
+    }];
 
-        // Update sunburst chart data and redraw
-        var updatedSunburstData = [{
-            type: "sunburst",
-            labels: filteredChartData.children.map(function(city) { return city.name; }),
-            parents: filteredChartData.children.map(function(city) { return "Cities"; }),
-            values: filteredChartData.children.map(function(city) {
-                return city.children.reduce(function(acc, fuelType) {
-                    return acc + fuelType.size;
-                }, 0);
-            }),
-            hoverinfo: "label+text+value",
-            textinfo: "percent root+label",
-            textfont: { size: 13 },
-        }];
+    var pieLayout = {
+        title: "Fuel Type Distribution",
+        margin: { l: 0, r: 0, b: 0, t: 30 },
+    };
 
-        console.log("Updating sunburst chart data:", updatedSunburstData);
-        Plotly.react("sunburst-chart", updatedSunburstData, sunburstLayout);
-        console.log("Sunburst chart updated");
-    }
+    // Render the pie chart
+    Plotly.newPlot("pie-chart", pieData, pieLayout);
+    console.log("Pie chart rendered");
 });
