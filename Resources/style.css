@@ -2,31 +2,31 @@
 .filters {
   margin: 20px;
 }
-
-/* Apply styles to chart containers */
-.chart-container {
-    width: 45%; /* Adjust as needed */
-    height: 500px; /* Adjust as needed */
-    margin: 20px;
-    box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    float: left;
-}
-
-/* Clear float after chart containers */
-.clearfix::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-/* Apply styles to Plotly.js charts */
-.plotly-graph-div {
-    width: 100%;
-    height: 100%;
-}
+  
+  /* Apply styles to chart containers */
+  .chart-container {
+      width: 45%;
+      height: 500px;
+      margin: 20px;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      float: left;
+  }
+  
+  /* Clear float after chart containers */
+  .clearfix::after {
+      content: "";
+      display: table;
+      clear: both;
+  }
+  
+  /* Apply styles to Plotly.js charts */
+  .plotly-graph-div {
+      width: 100%;
+      height: 100%;
+  }
 
 
 
