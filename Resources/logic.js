@@ -69,8 +69,6 @@ function createMap(data, fuelTypes) {
 d3.csv("Resources/filtered_data.csv").then(function (data) {
     // console.log("Loaded data:", data);
 
-    // Process the data to get the required information
-
     // Create a dictionary to store city-fuel type distribution
     var cityFuelDistribution = {};
 
@@ -176,10 +174,6 @@ d3.csv("Resources/filtered_data.csv").then(function (data) {
     // Render the pie chart
     Plotly.newPlot("pie-chart", pieData, pieLayout);
     console.log("Pie chart rendered");
-
-
-
-
 
     // map handling
     let fuelTypes = []
