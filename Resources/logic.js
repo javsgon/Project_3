@@ -3,12 +3,12 @@
 const colors = ['#79155B', '#F11A7B', '#0D1282', '#D71313', '#FF8400', '#4F200D'];
 const getColor = (fuelType) => {
     switch (fuelType.toUpperCase()) {
-        case "E85": return colors[0];
-        case "CNG": return colors[1];
-        case "LPG": return colors[2];
+        case "Ethanol Fuel": return colors[0];
+        case "Compressed Natural Gas": return colors[1];
+        case "Liquified Petroluem Gas": return colors[2];
         case "ELEC": return colors[3];
-        case "BD": return colors[4];
-        case "LNG": return colors[5];
+        case "Biodiesel": return colors[4];
+        case "Liquified Natural Gas": return colors[5];
     }
 }
 
