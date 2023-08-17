@@ -67,71 +67,64 @@ function createMap(data, fuelTypes) {
 
 // Load the CSV data
 d3.csv("Resources/filtered_data.csv").then(function (data) {
-    // console.log("Loaded data:", data);
+    console.log("Loaded data:", data);
 
-    // Create a dictionary to store city-fuel type distribution
     var cityFuelDistribution = {};
 
-    data.forEach(function (entry) {
-        var city = entry["City"];
-        var fuelType = entry["Fuel Type Code"];
+  data.forEach(function (entry) {
+    var city = entry["City"];
+    var fuelType = entry["Fuel Type Code"];
 
-        // Initialize the city-fuel type hierarchy
-        if (!cityFuelDistribution[city]) {
-            cityFuelDistribution[city] = {};
-        }
-
-        // Increment fuel type count within the city
-        if (!cityFuelDistribution[city][fuelType]) {
-            cityFuelDistribution[city][fuelType] = 1;
-        } else {
-            cityFuelDistribution[city][fuelType]++;
-        }
-    });
-
-    // Convert city-fuel type hierarchy to sunburst chart data
-    var sunburstChartData = {
-        name: "Cities",
-        children: buildSunburstData(cityFuelDistribution)
-    };
-
-    function buildSunburstData(hierarchy) {
-        return Object.keys(hierarchy).map(function (city) {
-            return {
-                name: city,
-                children: Object.keys(hierarchy[city]).map(function (fuelType) {
-                    return {
-                        name: fuelType,
-                        size: hierarchy[city][fuelType]
-                    };
-                })
-            };
-        });
+    if (!cityFuelDistribution[city]) {
+      cityFuelDistribution[city] = {};
     }
 
-    // Create a sunburst chart for city-fuel type distribution
-    var sunburstData = [{
-        type: "sunburst",
-        labels: sunburstChartData.children.map(function (city) { return city.name; }),
-        parents: sunburstChartData.children.map(function (city) { return "Cities"; }),
-        values: sunburstChartData.children.map(function (city) {
-            return city.children.reduce(function (acc, fuelType) {
-                return acc + fuelType.size;
-            }, 0);
-        }),
-        hoverinfo: "label+percent root",
-        textinfo: "label+value+entry", // Show city name, number of fuel types, and fuel types on click
-        textfont: { size: 13 },
-    }];
+    if (!cityFuelDistribution[city][fuelType]) {
+      cityFuelDistribution[city][fuelType] = 1;
+    } else {
+      cityFuelDistribution[city][fuelType]++;
+    }
+  });
 
-    var sunburstLayout = {
-        title: "Fuel Type Distribution within Cities",
-        margin: { l: 0, r: 0, b: 0, t: 30 },
-    };
+  // Convert city-fuel type hierarchy to treemap chart data
+  var treemapChartData = {
+    type: "treemap",
+    labels: [],
+    parents: [],
+    values: []
+  };
+  
+  function buildTreemapData(hierarchy) {
+    Object.keys(hierarchy).forEach(function (city) {
+      treemapChartData.labels.push(city);
+      treemapChartData.parents.push("");
+      treemapChartData.values.push(Object.keys(hierarchy[city]).length);
+  
+      Object.keys(hierarchy[city]).forEach(function (fuelType) {
+        treemapChartData.labels.push(fuelType);
+        treemapChartData.parents.push(city);
+        treemapChartData.values.push(hierarchy[city][fuelType]);
+      });
+    });
+  }
+  
+  buildTreemapData(cityFuelDistribution);
+  
+  // Create the treemap chart
+  var treemapData = [treemapChartData];
+  
+  var treemapLayout = {
+    margin: { l: 0, r: 0, b: 0, t: 0 },
+    treemapcolorway: "Viridis", // Use your defined colors array
+    hoverlabel: { // Add hoverlabel configuration
+      bgcolor: "#fff",
+      bordercolor: "#000"
+    }
+  };
 
-    // Render the sunburst chart
-    Plotly.newPlot("sunburst-chart", sunburstData, sunburstLayout);
-    console.log("Sunburst chart rendered");
+  // Render the treemap chart
+  Plotly.newPlot("treemap-chart", treemapData, treemapLayout);
+  console.log("Treemap chart rendered");
 
     // Convert city-fuel type distribution to pie chart data
     var pieChartData = buildPieChartData(cityFuelDistribution);
@@ -174,6 +167,7 @@ d3.csv("Resources/filtered_data.csv").then(function (data) {
     // Render the pie chart
     Plotly.newPlot("pie-chart", pieData, pieLayout);
     console.log("Pie chart rendered");
+
 
     // map handling
     let fuelTypes = []
