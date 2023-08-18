@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 import sqlite3
 import csv
-from flask import Flask
+from flask import Flask, jsonify, json
 
 #################################################
 # Database Setup
@@ -48,7 +48,7 @@ def load_data_from_csv(csv_file):
     conn.close()
 if __name__ == "__main__":
     create_database()
-    load_data_from_csv('complete data.csv')
+    load_data_from_csv('Resources/filtered_data.csv')
 
 
 engine = create_engine("sqlite:///data.sqlite")
