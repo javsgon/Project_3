@@ -66,7 +66,8 @@ function createMap(data, fuelTypes) {
 }
 
 // Load the CSV data
-d3.csv("Resources/filtered_data.csv").then(function (data) {
+const url = "http://127.0.0.1:5000/api/v1.0/dataset"
+d3.json(url).then(function (data) {
     console.log("Loaded data:", data);
 
     var cityFuelDistribution = {};
