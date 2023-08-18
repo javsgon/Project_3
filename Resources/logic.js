@@ -3,12 +3,12 @@
 const colors = ['#79155B', '#F11A7B', '#0D1282', '#D71313', '#FF8400', '#4F200D'];
 const getColor = (fuelType) => {
     switch (fuelType.toUpperCase()) {
-        case "Ethanol Fuel": return colors[0];
-        case "Compressed Natural Gas": return colors[1];
-        case "Liquified Petroluem Gas": return colors[2];
+        case "E85": return colors[0];
+        case "CNG": return colors[1];
+        case "LPG": return colors[2];
         case "ELEC": return colors[3];
-        case "Biodiesel": return colors[4];
-        case "Liquified Natural Gas": return colors[5];
+        case "BD": return colors[4];
+        case "LNG": return colors[5];
     }
 }
 
@@ -72,60 +72,60 @@ d3.json(url).then(function (data) {
 
     var cityFuelDistribution = {};
 
-  data.forEach(function (entry) {
-    var city = entry["city"];
-    var fuelType = entry["fuel_type_code"];
+    data.forEach(function (entry) {
+        var city = entry["city"];
+        var fuelType = entry["fuel_type_code"];
 
-    if (!cityFuelDistribution[city]) {
-      cityFuelDistribution[city] = {};
-    }
+        if (!cityFuelDistribution[city]) {
+            cityFuelDistribution[city] = {};
+        }
 
-    if (!cityFuelDistribution[city][fuelType]) {
-      cityFuelDistribution[city][fuelType] = 1;
-    } else {
-      cityFuelDistribution[city][fuelType]++;
-    }
-  });
-
-  // Convert city-fuel type hierarchy to treemap chart data
-  var treemapChartData = {
-    type: "treemap",
-    labels: [],
-    parents: [],
-    values: []
-  };
-  
-  function buildTreemapData(hierarchy) {
-    Object.keys(hierarchy).forEach(function (city) {
-      treemapChartData.labels.push(city);
-      treemapChartData.parents.push("");
-      treemapChartData.values.push(Object.keys(hierarchy[city]).length);
-  
-      Object.keys(hierarchy[city]).forEach(function (fuelType) {
-        treemapChartData.labels.push(fuelType);
-        treemapChartData.parents.push(city);
-        treemapChartData.values.push(hierarchy[city][fuelType]);
-      });
+        if (!cityFuelDistribution[city][fuelType]) {
+            cityFuelDistribution[city][fuelType] = 1;
+        } else {
+            cityFuelDistribution[city][fuelType]++;
+        }
     });
-  }
-  
-  buildTreemapData(cityFuelDistribution);
-  
-  // Create the treemap chart
-  var treemapData = [treemapChartData];
-  
-  var treemapLayout = {
-    margin: { l: 0, r: 0, b: 0, t: 0 },
-    treemapcolorway: "Viridis", // Use your defined colors array
-    hoverlabel: { // Add hoverlabel configuration
-      bgcolor: "#fff",
-      bordercolor: "#000"
-    }
-  };
 
-  // Render the treemap chart
-  Plotly.newPlot("treemap-chart", treemapData, treemapLayout);
-  console.log("Treemap chart rendered");
+    // Convert city-fuel type hierarchy to treemap chart data
+    var treemapChartData = {
+        type: "treemap",
+        labels: [],
+        parents: [],
+        values: []
+    };
+
+    function buildTreemapData(hierarchy) {
+        Object.keys(hierarchy).forEach(function (city) {
+            treemapChartData.labels.push(city);
+            treemapChartData.parents.push("");
+            treemapChartData.values.push(Object.keys(hierarchy[city]).length);
+
+            Object.keys(hierarchy[city]).forEach(function (fuelType) {
+                treemapChartData.labels.push(fuelType);
+                treemapChartData.parents.push(city);
+                treemapChartData.values.push(hierarchy[city][fuelType]);
+            });
+        });
+    }
+
+    buildTreemapData(cityFuelDistribution);
+
+    // Create the treemap chart
+    var treemapData = [treemapChartData];
+
+    var treemapLayout = {
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+        treemapcolorway: "Viridis", // Use your defined colors array
+        hoverlabel: { // Add hoverlabel configuration
+            bgcolor: "#fff",
+            bordercolor: "#000"
+        }
+    };
+
+    // Render the treemap chart
+    Plotly.newPlot("treemap-chart", treemapData, treemapLayout);
+    console.log("Treemap chart rendered");
 
     // Convert city-fuel type distribution to pie chart data
     var pieChartData = buildPieChartData(cityFuelDistribution);
