@@ -73,8 +73,8 @@ d3.json(url).then(function (data) {
     var cityFuelDistribution = {};
 
   data.forEach(function (entry) {
-    var city = entry["City"];
-    var fuelType = entry["Fuel Type Code"];
+    var city = entry["city"];
+    var fuelType = entry["fuel_type_code"];
 
     if (!cityFuelDistribution[city]) {
       cityFuelDistribution[city] = {};
