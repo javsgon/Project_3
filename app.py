@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, func
 import sqlite3
 import csv
 from flask import Flask, jsonify, json
+from flask_cors import CORS
 
 #################################################
 # Database Setup
@@ -74,6 +75,7 @@ if __name__ == "__main__":
 #################################################
 app = Flask(__name__)
 
+CORS(app)
 
 
 #################################################

@@ -2,13 +2,13 @@
 
 const colors = ['#79155B', '#F11A7B', '#0D1282', '#D71313', '#FF8400', '#4F200D'];
 const getColor = (fuelType) => {
-    switch (fuelType.toUpperCase()) {
-        case "E85": return colors[0];
-        case "CNG": return colors[1];
-        case "LPG": return colors[2];
+    switch (fuelType) {
+        case "Ethanol Fuel": return colors[0];
+        case "Compressed Natural Gas": return colors[1];
+        case "Liquified Petroleum Gas": return colors[2];
         case "ELEC": return colors[3];
-        case "BD": return colors[4];
-        case "LNG": return colors[5];
+        case "Biodiesel": return colors[4];
+        case "Liquified Natural Gas": return colors[5];
     }
 }
 
@@ -19,7 +19,7 @@ function createMap(data, fuelTypes) {
         existingMap.remove();
         existingMap = null;
     }
-    const map = L.map('fuelStation').setView([41.9002646, -87.941968], 13);
+    const map = L.map('fuelStation').setView([data[0].latitude, data[0].longitude], 13);
     existingMap = map;
 
     // Add base layer (e.g., OpenStreetMap)
@@ -30,12 +30,12 @@ function createMap(data, fuelTypes) {
 
     // Add markers for each station
     data.forEach(dt => {
-        const lat = dt.Latitude;
-        const lon = dt.Longitude;
-        const city = dt.City;
-        const station = dt['Station Name'];
-        const fuelType = dt['Fuel Type Code'];
-        const openedData = dt['Open Date'];
+        const lat = dt.latitude;
+        const lon = dt.longitude;
+        const city = dt.city;
+        const station = dt['station_name'];
+        const fuelType = dt['fuel_type_code'];
+        const openedData = dt['open_date'];
 
         const marker = L.circleMarker([lat, lon], {
             radius: 10, // Adjust the scaling factor
@@ -53,7 +53,7 @@ function createMap(data, fuelTypes) {
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend');
-        console.log(fuelTypes);
+        
 
         for (let i = 0; i < fuelTypes.length; i++) {
             const colorLabel = `<div style="display: inline-block; width: 20px; height: 20px; background-color: ${colors[i]}"></div>`;
@@ -68,7 +68,6 @@ function createMap(data, fuelTypes) {
 // Load the CSV data
 const url = "http://127.0.0.1:5000/api/v1.0/dataset"
 d3.json(url).then(function (data) {
-    console.log("Loaded data:", data);
 
     var cityFuelDistribution = {};
 
@@ -173,23 +172,27 @@ d3.json(url).then(function (data) {
     // map handling
     let fuelTypes = []
     data.forEach(element => {
-        fuelTypes.push(element['Fuel Type Code']);
+        fuelTypes.push(element['fuel_type_code']);
     });
+
     fuelTypes = new Set(fuelTypes);
     fuelTypes = [...fuelTypes];
     const fuelTypeContainer = document.getElementById('fuelType')
 
     let html = '<option value=All>ALL</option>'
-    fuelTypes.forEach(el => html += `<option value=${el}>${el}</option>`)
+    fuelTypes.forEach(el => {
+        html += `<option value=${el.split(" ").join("_")}>${el}</option>`
+    })
     fuelTypeContainer.innerHTML = html;
 
     fuelTypeContainer.addEventListener('change', function () {
-        var selectedFuelType = this.value.toUpperCase();
-        if (selectedFuelType === "ALL") {
+        var selectedFuelType = this.value.split("_").join(" ");
+
+        if (selectedFuelType === "All") {
             createMap(data, fuelTypes);
         }
         else {
-            const filteredData = data.filter(el => el['Fuel Type Code'].toUpperCase() === selectedFuelType)
+            const filteredData = data.filter(el => el['fuel_type_code'] === selectedFuelType)
             createMap(filteredData, fuelTypes);
         }
     })
