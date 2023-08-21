@@ -1,74 +1,108 @@
+// Load the JSON data
+const url = "http://127.0.0.1:5000/api/v1.0/dataset";
+d3.json(url).then(function (data) {
+    console.log("Loaded data:", data);
 
+    // Define colors for fuel types
+    const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'];
 
-const colors = ['#79155B', '#F11A7B', '#0D1282', '#D71313', '#FF8400', '#4F200D'];
-const getColor = (fuelType) => {
-    switch (fuelType) {
-        case "Ethanol Fuel": return colors[0];
-        case "Compressed Natural Gas": return colors[1];
-        case "Liquified Petroleum Gas": return colors[2];
-        case "ELEC": return colors[3];
-        case "Biodiesel": return colors[4];
-        case "Liquified Natural Gas": return colors[5];
+    // Map each fuel type to a color
+    const fuelTypeColors = {
+        "Ethanol Fuel": colors[0],
+        "Compressed Natural Gas": colors[1],
+        "Liquified Petroleum Gas": colors[2],
+        "ELEC": colors[3],
+        "Biodiesel": colors[4],
+        "Liquified Natural Gas": colors[5],
+    };
+
+    // Function to get the color of a fuel type
+    function getFuelTypeColor(fuelType) {
+        return fuelTypeColors[fuelType] || "#000000"; // Default color for unknown types
     }
-}
 
-let existingMap = null; // handling map container
-function createMap(data, fuelTypes) {
-    document.getElementById('fuelStation').innerHTML = '';
-    if (existingMap) {
-        existingMap.remove();
-        existingMap = null;
-    }
-    const map = L.map('fuelStation').setView([data[0].latitude, data[0].longitude], 13);
-    existingMap = map;
+    // Extract fuel types from the data
+    const fuelTypes = [...new Set(data.map(entry => entry.fuel_type_code))];
+    fuelTypes.sort(); // Sort fuel types in ascending order
 
-    // Add base layer (e.g., OpenStreetMap)
+    // Populate the dropdown options
+    const fuelTypeDropdown = document.getElementById("fuelType");
+    fuelTypes.forEach(fuelType => {
+        const option = document.createElement("option");
+        option.value = fuelType;
+        option.textContent = fuelType;
+        fuelTypeDropdown.appendChild(option);
+    });
+
+    // Create the map
+    const map = L.map('fuelStation').setView([41.9002646, -87.941968], 7);
+
+    // Add base layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    // Create a legend
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function (map) {
+        const div = L.DomUtil.create('div', 'info legend');
+
+        for (const fuelType of fuelTypes) {
+            const color = getFuelTypeColor(fuelType);
+            const colorLabel = `<div style="display: inline-block; width: 20px; height: 20px; background-color: ${color}"></div>`;
+            div.innerHTML +=
+                `${colorLabel}&nbsp;&nbsp;<i>${fuelType}</i><br />`;
+        }
+        return div;
+    };
+    legend.addTo(map);
+
+    // Create an array to hold all markers
+    const markers = [];
 
     // Add markers for each station
     data.forEach(dt => {
         const lat = dt.latitude;
         const lon = dt.longitude;
         const city = dt.city;
-        const station = dt['station_name'];
-        const fuelType = dt['fuel_type_code'];
-        const openedData = dt['open_date'];
+        const station = dt.station_name;
+        const fuelType = dt.fuel_type_code;
+        const openedData = dt.open_date;
 
         const marker = L.circleMarker([lat, lon], {
-            radius: 10, // Adjust the scaling factor
-            fillColor: getColor(fuelType),
+            radius: 10,
+            fillColor: getFuelTypeColor(fuelType),
             color: '#000',
             weight: 1,
             opacity: 1,
             fillOpacity: 1
-        }).addTo(map);
+        });
 
         marker.bindPopup(`Location: ${lat}, ${lon} <br> City: ${city} <br> Station: ${station}<br>Open Date: ${openedData}`);
+        markers.push({ marker, fuelType });
     });
 
-    // Create a legend
-    const legend = L.control({ position: 'bottomright' });
-    legend.onAdd = function (map) {
-        const div = L.DomUtil.create('div', 'info legend');
-        
+    // Add all markers to the map
+    markers.forEach(mark => {
+        mark.marker.addTo(map);
+    });
 
-        for (let i = 0; i < fuelTypes.length; i++) {
-            const colorLabel = `<div style="display: inline-block; width: 20px; height: 20px; background-color: ${colors[i]}"></div>`;
-            div.innerHTML +=
-                `${colorLabel}&nbsp;&nbsp;<i>${fuelTypes[i]}</i><br />`; // Add a non-breaking space here
-        }
-        return div;
-    };
-    legend.addTo(map);
-}
+    // Dropdown filter
+    fuelTypeDropdown.addEventListener("change", function () {
+        const selectedFuelType = fuelTypeDropdown.value;
 
-// Load the CSV data
-const url = "http://127.0.0.1:5000/api/v1.0/dataset"
-d3.json(url).then(function (data) {
+        markers.forEach(mark => {
+            const isVisible = selectedFuelType === "all" || selectedFuelType === mark.fuelType;
+            if (isVisible) {
+                map.addLayer(mark.marker);
+            } else {
+                map.removeLayer(mark.marker);
+            }
+        });
+    });
 
+    // Convert city-fuel type hierarchy to treemap chart data
     var cityFuelDistribution = {};
 
     data.forEach(function (entry) {
@@ -91,23 +125,29 @@ d3.json(url).then(function (data) {
         type: "treemap",
         labels: [],
         parents: [],
-        values: []
+        values: [],
+        branchvalues: 'total' // Set the branch values to 'total'
     };
-
+    
     function buildTreemapData(hierarchy) {
         Object.keys(hierarchy).forEach(function (city) {
+            const totalFuelTypes = Object.values(hierarchy[city]).reduce((total, count) => total + count, 0);
+    
             treemapChartData.labels.push(city);
             treemapChartData.parents.push("");
-            treemapChartData.values.push(Object.keys(hierarchy[city]).length);
-
+            treemapChartData.values.push(totalFuelTypes);
+    
             Object.keys(hierarchy[city]).forEach(function (fuelType) {
-                treemapChartData.labels.push(fuelType);
+                const fuelTypeCount = hierarchy[city][fuelType];
+                const percentage = ((fuelTypeCount / totalFuelTypes) * 100).toFixed(0);
+                const label = `${fuelType} (${percentage}%)`; // Display the percentage
+                treemapChartData.labels.push(label);
                 treemapChartData.parents.push(city);
-                treemapChartData.values.push(hierarchy[city][fuelType]);
+                treemapChartData.values.push(fuelTypeCount);
             });
         });
     }
-
+    
     buildTreemapData(cityFuelDistribution);
 
     // Create the treemap chart
@@ -116,7 +156,7 @@ d3.json(url).then(function (data) {
     var treemapLayout = {
         margin: { l: 0, r: 0, b: 0, t: 0 },
         treemapcolorway: "Viridis", // Use your defined colors array
-        hoverlabel: { // Add hoverlabel configuration
+        hoverlabel: {
             bgcolor: "#fff",
             bordercolor: "#000"
         }
@@ -145,7 +185,8 @@ d3.json(url).then(function (data) {
         return Object.keys(fuelTypeCounts).map(function (fuelType) {
             return {
                 label: fuelType,
-                value: fuelTypeCounts[fuelType]
+                value: fuelTypeCounts[fuelType],
+                color: getFuelTypeColor(fuelType) // Use the color mapping function here
             };
         });
     }
@@ -153,51 +194,20 @@ d3.json(url).then(function (data) {
     // Create a pie chart for fuel type distribution
     var pieData = [{
         type: "pie",
-        labels: pieChartData.map(function (item) { return item.label; }),
-        values: pieChartData.map(function (item) { return item.value; }),
+        labels: pieChartData.map(item => item.label),
+        values: pieChartData.map(item => item.value),
         hoverinfo: "label+value",
         textinfo: "percent",
+        marker: {
+            colors: pieChartData.map(item => item.color) // Use the color mapping here
+        }
     }];
 
     var pieLayout = {
-        title: "Fuel Type Distribution",
         margin: { l: 0, r: 0, b: 0, t: 30 },
     };
 
     // Render the pie chart
     Plotly.newPlot("pie-chart", pieData, pieLayout);
     console.log("Pie chart rendered");
-
-
-    // map handling
-    let fuelTypes = []
-    data.forEach(element => {
-        fuelTypes.push(element['fuel_type_code']);
-    });
-
-    fuelTypes = new Set(fuelTypes);
-    fuelTypes = [...fuelTypes];
-    const fuelTypeContainer = document.getElementById('fuelType')
-
-    let html = '<option value=All>ALL</option>'
-    fuelTypes.forEach(el => {
-        html += `<option value=${el.split(" ").join("_")}>${el}</option>`
-    })
-    fuelTypeContainer.innerHTML = html;
-
-    fuelTypeContainer.addEventListener('change', function () {
-        var selectedFuelType = this.value.split("_").join(" ");
-
-        if (selectedFuelType === "All") {
-            createMap(data, fuelTypes);
-        }
-        else {
-            const filteredData = data.filter(el => el['fuel_type_code'] === selectedFuelType)
-            createMap(filteredData, fuelTypes);
-        }
-    })
-    var changeEvent = new Event('change');
-    fuelTypeContainer.value = "All";
-    fuelTypeContainer.dispatchEvent(changeEvent);
-
 });
