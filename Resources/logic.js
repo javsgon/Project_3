@@ -224,7 +224,16 @@ d3.json(url).then(function (data) {
     Plotly.newPlot("pie-chart", pieData, pieLayout);
     console.log("Pie chart rendered");
 
-
+    const defaultChart = 'pie';
+    const chartContainers = document.querySelectorAll('.chart-container > div');
+    
+    chartContainers.forEach(container => {
+      if (container.classList.contains(`chart-${defaultChart}`)) {
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+      }
+    });
 
   // Group data by year and fuel type
   const groupedData = {};
