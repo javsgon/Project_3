@@ -39,6 +39,9 @@ d3.json(url).then(function (data) {
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend');
 
+    // Add a class to the legend for styling
+    div.className = 'legend-container';
+
         for (const fuelType of fuelTypes) {
             const color = getFuelTypeColor(fuelType);
             const colorLabel = `<div style="display: inline-block; width: 20px; height: 20px; background-color: ${color}"></div>`;

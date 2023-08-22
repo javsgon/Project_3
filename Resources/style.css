@@ -25,13 +25,21 @@
 
 .map-container {
   width: 91.75%;
-  height: 800px; /* Adjust the container height */
+  height: 750px; /* Adjust the container height */
   margin: 20px;
   box-sizing: border-box;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 10px;
   float: left;
+}
+
+/* Add background to the map legend */
+.legend-container {
+  background-color: white;
+  padding: 10px; 
+  border-radius: 5px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
 
 #fuelStation {
