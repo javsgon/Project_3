@@ -37,16 +37,36 @@
       </header>
     </div>
 
-    <!-- Chart containers -->
-    <div class="chart-container">
-      <h2>Fuel Type Distribution</h2>
-      <div id="pie-chart"></div>
-    </div>
+<!-- Add a dropdown to choose the chart type -->
+<div class="chart-selection">
+  <h2>Data and Visualization</h2>
+  <label for="chartType">Select Chart Type:</label>
+  <select id="chartType">
+    <option value="">Select a Chart</option>
+    <option value="pie">Pie Chart</option>
+    <option value="treemap">Treemap Chart</option>
+    <option value="bar">Bar Chart</option>
+  </select>
+</div>
 
-    <div class="chart-container">
-      <h2>City and Fuel Type Stations</h2>
-      <div id="treemap-chart"></div>
+<!-- Container for the chart(s) -->
+<div class="chart-container">
+  <div class="chart-pie">
+    <h2>Fuel Type Distribution</h2>
+    <div id="pie-chart" ></div>
   </div>
+  
+  <div class="chart-treemap">
+    <h2>City and Fuel Type Stations</h2>
+    <div id="treemap-chart"></div>
+  </div>
+
+  <div class="chart-bar">
+    <h2>New Alternative Fuel Stations per Year</h2>
+    <div id="chart"></div>
+  </div>
+</div>
+
 
     <div class="map-container">
       <h2>Different fuel stations</h2>
@@ -63,5 +83,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.0/d3.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="Resources/logic.js"></script>
+
   </body>
 </html>

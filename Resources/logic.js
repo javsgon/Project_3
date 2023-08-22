@@ -220,4 +220,73 @@ d3.json(url).then(function (data) {
     // Render the pie chart
     Plotly.newPlot("pie-chart", pieData, pieLayout);
     console.log("Pie chart rendered");
-});
+
+
+
+  // Group data by year and fuel type
+  const groupedData = {};
+  const fuelTypeColorMap = {
+    "Ethanol Fuel": colors[0],
+    "Compressed Natural Gas": colors[1],
+    "Liquified Petroleum Gas": colors[2],
+    "ELEC": colors[3],
+    "Biodiesel": colors[4],
+    "Liquified Natural Gas": colors[5],
+};
+
+  data.forEach(item => {
+    const year = item.open_date.slice(0, 4);
+    const fuelType = item.fuel_type_code;
+    if (!groupedData[year]) {
+      groupedData[year] = {};
+    }
+    if (!groupedData[year][fuelType]) {
+      groupedData[year][fuelType] = 0;
+    }
+    groupedData[year][fuelType]++;
+  });
+
+  // Prepare data for the Plotly bar chart
+  const years = Object.keys(groupedData);
+  const chartData = fuelTypes.map(type => ({
+    x: years,
+    y: years.map(year => groupedData[year][type] || 0),
+    type: 'bar',
+    name: type,
+    marker: {
+        color: fuelTypeColorMap[type]
+    }
+  }));
+
+  // Layout options for the chart
+  const layout = {
+    title: 'Fuel Station Openings by Year and Fuel Type',
+    barmode: 'stack', // Use 'group' for side-by-side bars
+    xaxis: { title: 'Year' },
+    yaxis: { title: 'Number of Stations' },
+  };
+
+    // Create the Plotly bar chart
+    Plotly.newPlot('chart', chartData, layout);
+
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize chart visibility
+        const chartContainers = document.querySelectorAll('.chart-container > div');
+        chartContainers.forEach(container => container.style.display = 'none');
+      
+        // Show the selected chart and hide others
+        const chartTypeSelector = document.getElementById('chartType');
+        chartTypeSelector.addEventListener('change', function () {
+          const selectedChartType = chartTypeSelector.value;
+          chartContainers.forEach(container => {
+            container.style.display = 'none';
+          });
+      
+          const selectedContainer = document.querySelector(`.chart-${selectedChartType}`);
+          if (selectedContainer) {
+            selectedContainer.style.display = 'block';
+          }
+        });
+      });
