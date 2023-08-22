@@ -24,7 +24,7 @@
 }
 
 .map-container {
-  width: 100%;
+  width: 91.75%;
   height: 800px; /* Adjust the container height */
   margin: 20px;
   box-sizing: border-box;
@@ -87,14 +87,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 30vh;
+  min-height: 40vh;
   background-color: #f0f0f0;
 }
 
 header {
   background-color: #1987f5ea;
   color: #fff;
-  padding: 10px;
+  padding: 20px;
   display: flex;
   align-items: center;
   text-align: center;
@@ -114,6 +114,7 @@ header h1 {
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 2px;
+
 }
 
 header p {
@@ -122,6 +123,7 @@ header p {
   color: #fff;
   text-align: center;
 }
+
 
 header img {
   max-width: 40%;
