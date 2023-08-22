@@ -25,15 +25,6 @@ d3.json(url).then(function (data) {
     const fuelTypes = [...new Set(data.map(entry => entry.fuel_type_code))];
     fuelTypes.sort(); // Sort fuel types in ascending order
 
-    // Populate the dropdown options
-    const fuelTypeDropdown = document.getElementById("fuelType");
-    fuelTypes.forEach(fuelType => {
-        const option = document.createElement("option");
-        option.value = fuelType;
-        option.textContent = fuelType;
-        fuelTypeDropdown.appendChild(option);
-    });
-
     // Create the map
     const map = L.map('fuelStation').setView([41.9002646, -87.941968], 7);
 
@@ -88,7 +79,26 @@ d3.json(url).then(function (data) {
         mark.marker.addTo(map);
     });
 
-    // Dropdown filter
+    // Populate the dropdown options
+    const fuelTypeDropdown = document.getElementById("fuelType");
+
+    // "All fuel types" option
+    const allFuelTypeOption = document.createElement("option");
+    allFuelTypeOption.value = "all"; // Use 'all' as the value
+    allFuelTypeOption.textContent = "All fuel types"; // Display text
+    fuelTypeDropdown.appendChild(allFuelTypeOption);
+
+    // Populate the rest of the fuel type options
+    fuelTypes.forEach(fuelType => {
+        const option = document.createElement("option");
+        option.value = fuelType;
+        option.textContent = fuelType;
+        fuelTypeDropdown.appendChild(option);
+    });
+
+    // Set the "All fuel types" option as the selected option
+    fuelTypeDropdown.value = "all";
+
     fuelTypeDropdown.addEventListener("change", function () {
         const selectedFuelType = fuelTypeDropdown.value;
 
@@ -155,7 +165,7 @@ d3.json(url).then(function (data) {
 
     var treemapLayout = {
         margin: { l: 0, r: 0, b: 0, t: 0 },
-        treemapcolorway: "Viridis", // Use your defined colors array
+        treemapcolorway: "Viridis", // colors array
         hoverlabel: {
             bgcolor: "#fff",
             bordercolor: "#000"
