@@ -85,7 +85,7 @@ d3.json(url).then(function (data) {
     // "All fuel types" option
     const allFuelTypeOption = document.createElement("option");
     allFuelTypeOption.value = "all"; // Use 'all' as the value
-    allFuelTypeOption.textContent = "All fuel types"; // Display text
+    allFuelTypeOption.textContent = "All Fuel Types"; // Display text
     fuelTypeDropdown.appendChild(allFuelTypeOption);
 
     // Populate the rest of the fuel type options
